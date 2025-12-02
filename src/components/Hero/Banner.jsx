@@ -19,7 +19,7 @@ const Banner = () => {
       {/* DotGrid Background */}
       <div className="absolute inset-0">
         <DotGrid
-          dotSize={10}
+          dotSize={5}
           gap={15}
           baseColor="#5227FF"
           activeColor="#5227FF"
