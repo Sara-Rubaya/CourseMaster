@@ -35,7 +35,7 @@ const CourseIncludes = () => {
             data-aos="zoom-in"
             className=" rounded-xl  py-8 px-4 hover:scale-105 transform transition duration-300"
           >
-            <h3 className="text-5xl md:text-5xl font-bold text-blue-600">
+            <h3 className="text-5xl md:text-5xl font-bold text-violet-800">
               <CountUp
                 start={0}
                 end={stat.value}
