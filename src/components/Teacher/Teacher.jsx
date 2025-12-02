@@ -34,7 +34,7 @@ const MeetTeacher = () => {
   }, []);
 
   return (
-    <section className="py-20 px-6 md:px-20 bg-gray-50">
+    <section id="meet-our-teacher" className="py-20 px-6 md:px-20 bg-gray-50">
       <div className="max-w-6xl mx-auto text-center mb-12">
         <h2 className="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
           Meet Our Teachers

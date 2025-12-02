@@ -18,7 +18,7 @@ const CourseIncludes = () => {
   }, []);
 
   return (
-    <section className="py-20 px-6 md:px-20 bg-gray-50">
+    <section className="py-30 px-6 md:px-20 bg-violet-200">
       <div className="max-w-6xl mx-auto text-center mb-12">
         <h2 className="text-5xl md:text-5xl font-bold text-purple-800 mb-4">
           What's Included in Our Course?
@@ -29,11 +29,14 @@ const CourseIncludes = () => {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 text-center">
-        {courseStats.map((stat) => (
+        {courseStats.map((stat, index) => (
           <div
             key={stat.id}
             data-aos="zoom-in"
-            className=" rounded-xl  py-8 px-4 hover:scale-105 transform transition duration-300"
+            className={`py-8 px-4 hover:scale-105 transform transition duration-300
+              ${index !== courseStats.length - 1 ? "border-r border-gray-400" : ""} 
+              md:last:border-r-0
+            `}
           >
             <h3 className="text-5xl md:text-5xl font-bold text-violet-800">
               <CountUp

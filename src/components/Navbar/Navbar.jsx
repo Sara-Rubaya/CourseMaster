@@ -1,7 +1,15 @@
 import React from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link } from 'react-router';
 
 const Navbar = () => {
+  const handleScrollToInstructor = (e) => {
+    e.preventDefault();
+    const section = document.getElementById('meet-our-teacher');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="sticky top-0 z-50">
       <div className="navbar shadow-sm bg-violet-900">
@@ -25,41 +33,29 @@ const Navbar = () => {
             </div>
             <ul
               tabIndex="-1"
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow"
+              className="menu menu-sm dropdown-content bg-violet-400 rounded-box z-50 mt-3 w-52 p-2 shadow"
             >
               <li>
-                <NavLink
-                  to="/"
-                  className={({ isActive }) =>
-                    isActive ? 'bg-purple-700 text-white' : ''
-                  }
-                >
-                  Home
-                </NavLink>
+                <a className='hover:bg-violet-900' href="/">Home</a>
               </li>
               <li>
-                <NavLink
-                  to="/instructor"
-                  className={({ isActive }) =>
-                    isActive ? 'bg-purple-700 text-white' : ''
-                  }
-                >
+                <a className='hover:bg-violet-900' href="#meet-our-teacher" onClick={handleScrollToInstructor}>
                   Instructor
-                </NavLink>
+                </a>
               </li>
-              <li>
-                <details>
-                  <summary>Courses</summary>
-                  <ul className="p-2 bg-base-100 w-40 z-50">
-                    <li><a>React Launcher</a></li>
-                    <li><a>WebDev Starter Pack</a></li>
-                    <li><a>Introduction to Software Engineering</a></li>
-                    <li><a>Frontend Fundamentals</a></li>
-                    <li><a>Node Proficiency Guide</a></li>
+              <li >
+                <details >
+                  <summary className=' hover:bg-violet-900'>Courses</summary>
+                  <ul className="p-2 bg-violet-400 w-40 z-50">
+                    <li><a className='hover:bg-violet-900'>React Launcher</a></li>
+                    <li><a className='hover:bg-violet-900'>WebDev Starter Pack</a></li>
+                    <li><a className='hover:bg-violet-900'>Introduction to Software Engineering</a></li>
+                    <li><a className='hover:bg-violet-900'>Frontend Fundamentals</a></li>
+                    <li><a className='hover:bg-violet-900'>Node Proficiency Guide</a></li>
                   </ul>
                 </details>
               </li>
-              <li><a>About Us</a></li>
+              <li><a className='hover:bg-violet-900'>About Us</a></li>
             </ul>
           </div>
           <a className="btn btn-ghost text-xl">CourseMaster</a>
@@ -67,34 +63,22 @@ const Navbar = () => {
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  isActive ? 'bg-purple-700 text-white px-3 py-1 rounded' : ''
-                }
-              >
-                Home
-              </NavLink>
+              <a hover:bg-violet-900 href="/">Home</a>
             </li>
             <li>
-              <NavLink
-                to="/instructor"
-                className={({ isActive }) =>
-                  isActive ? 'bg-purple-700 text-white px-3 py-1 rounded' : ''
-                }
-              >
+              <a hover:bg-violet-900 href="#meet-our-teacher" onClick={handleScrollToInstructor}>
                 Instructor
-              </NavLink>
+              </a>
             </li>
             <li>
               <details>
                 <summary>Courses</summary>
-                <ul className="p-2 bg-base-100 w-40 z-50">
-                  <li><a>React Launcher</a></li>
-                  <li><a>WebDev Starter Pack</a></li>
-                  <li><a>Introduction to Software Engineering</a></li>
-                  <li><a>Frontend Fundamentals</a></li>
-                  <li><a>Node Proficiency Guide</a></li>
+                <ul className="p-2 bg-violet-400 w-40 z-50">
+                  <li><a className='hover:bg-violet-900'>React Launcher</a></li>
+                  <li><a className='hover:bg-violet-900'>WebDev Starter Pack</a></li>
+                  <li><a className='hover:bg-violet-900'>Introduction to Software Engineering</a></li>
+                  <li><a className='hover:bg-violet-900'>Frontend Fundamentals</a></li>
+                  <li><a className='hover:bg-violet-900'>Node Proficiency Guide</a></li>
                 </ul>
               </details>
             </li>
@@ -103,7 +87,7 @@ const Navbar = () => {
         </div>
         <div className="navbar-end">
           <Link to="/login">
-            <button className="btn hover:bg-purple-800 bg-purple-400">Login</button>
+            <button className="btn hover:bg-violet-800 bg-violet-400">Login</button>
           </Link>
         </div>
       </div>
