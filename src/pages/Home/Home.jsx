@@ -6,6 +6,8 @@ import CourseIncludes from '../../components/CourseIncludes/CourseIncludes';
 import WhatWillILearn from '../../components/WhatWillILearn/WhatWillILearn';
 import CourseTopics from '../../components/CourseTopics/CourseTopics';
 import StudentTestimonials from '../../components/StudentTestimonials/StudentTestimonials';
+import FAQ from '../../components/FAQ/FAQ';
+import CTA from '../../components/CTA/CTA';
 
 const Home = () => {
     return (
@@ -17,6 +19,8 @@ const Home = () => {
            <WhatWillILearn></WhatWillILearn>
            <CourseTopics></CourseTopics>
            <StudentTestimonials></StudentTestimonials>
+           <FAQ></FAQ>
+           <CTA></CTA>
         </div>
     );
 };

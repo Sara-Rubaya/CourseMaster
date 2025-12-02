@@ -83,7 +83,7 @@ const WhatWillILearn = () => {
           href="/get-course"
           className="bg-purple-600 text-white font-semibold px-8 py-4 rounded-4xl shadow-lg hover:bg-purple-800 transition duration-300"
         >
-          Get the Course
+          Get the Courses
         </a>
         <a
           href="/about-teacher"

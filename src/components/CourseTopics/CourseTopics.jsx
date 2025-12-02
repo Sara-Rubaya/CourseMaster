@@ -60,7 +60,7 @@ const CourseTopics = () => {
         <div className="flex justify-center mt-10">
           <button
             onClick={handleShowMore}
-            className="bg-violet-600 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:bg-violet-800 transition duration-300"
+            className="bg-violet-700 text-white font-semibold px-8 py-4 rounded-4xl shadow-lg hover:bg-violet-900 transition duration-300"
           >
             Show More
           </button>
