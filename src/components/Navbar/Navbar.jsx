@@ -1,13 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React, { useContext } from 'react';
+import { Link, useNavigate } from 'react-router';
+import { AuthContext } from '../../Context/AuthContext';
+
 
 const Navbar = () => {
+  const { user, logOut } = useContext(AuthContext); 
+  const navigate = useNavigate();
+
   const handleScrollToInstructor = (e) => {
     e.preventDefault();
     const section = document.getElementById('meet-our-teacher');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleLogout = () => {
+    logOut()
+      .then(() => navigate('/'))
+      .catch(err => console.log(err));
   };
 
   return (
@@ -35,60 +44,36 @@ const Navbar = () => {
               tabIndex="-1"
               className="menu menu-sm dropdown-content bg-violet-400 rounded-box z-50 mt-3 w-52 p-2 shadow"
             >
-              <li>
-                <a className='hover:bg-violet-900' href="/">Home</a>
-              </li>
-              <li>
-                <a className='hover:bg-violet-900' href="#meet-our-teacher" onClick={handleScrollToInstructor}>
-                  Instructor
-                </a>
-              </li>
-              <li >
-                <details >
-                  <summary className=' hover:bg-violet-900'>Courses</summary>
-                  <ul className="p-2 bg-violet-400 w-40 z-50">
-                    <li><a className='hover:bg-violet-900'>React Launcher</a></li>
-                    <li><a className='hover:bg-violet-900'>WebDev Starter Pack</a></li>
-                    <li><a className='hover:bg-violet-900'>Introduction to Software Engineering</a></li>
-                    <li><a className='hover:bg-violet-900'>Frontend Fundamentals</a></li>
-                    <li><a className='hover:bg-violet-900'>Node Proficiency Guide</a></li>
-                  </ul>
-                </details>
-              </li>
-              <li><a className='hover:bg-violet-900'>About Us</a></li>
+              <li><a className='hover:bg-violet-900' href="/">Home</a></li>
+              <li><a className='hover:bg-violet-900' href="#meet-our-teacher" onClick={handleScrollToInstructor}>Instructor</a></li>
+              
+              <li><a href="/courses" className='hover:bg-violet-900'>Courses</a></li>
+              <li><a href="/aboutUs" className='hover:bg-violet-900'>About Us</a></li>
+              <li><a href="/aboutUs" className='hover:bg-violet-900'>Dashboard</a></li>
             </ul>
           </div>
           <a className="btn btn-ghost text-xl">CourseMaster</a>
         </div>
+
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
-            <li>
-              <a hover:bg-violet-900 href="/">Home</a>
-            </li>
-            <li>
-              <a hover:bg-violet-900 href="#meet-our-teacher" onClick={handleScrollToInstructor}>
-                Instructor
-              </a>
-            </li>
-            <li>
-              <details>
-                <summary>Courses</summary>
-                <ul className="p-2 bg-violet-400 w-40 z-50">
-                  <li><a className='hover:bg-violet-900'>React Launcher</a></li>
-                  <li><a className='hover:bg-violet-900'>WebDev Starter Pack</a></li>
-                  <li><a className='hover:bg-violet-900'>Introduction to Software Engineering</a></li>
-                  <li><a className='hover:bg-violet-900'>Frontend Fundamentals</a></li>
-                  <li><a className='hover:bg-violet-900'>Node Proficiency Guide</a></li>
-                </ul>
-              </details>
-            </li>
-            <li><a>About Us</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="#meet-our-teacher" onClick={handleScrollToInstructor}>Instructor</a></li>
+          
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="/aboutUs">About Us</a></li>
+            <li><a href="/aboutUs">Dashboard</a></li>
           </ul>
         </div>
+
         <div className="navbar-end">
-          <Link to="/login">
-            <button className="btn hover:bg-violet-800 bg-violet-400">Login</button>
-          </Link>
+          {user ? (
+            <button onClick={handleLogout} className="btn hover:bg-violet-800 bg-violet-400">Logout</button>
+          ) : (
+            <Link to="/login">
+              <button className="btn hover:bg-violet-800 bg-violet-400">Login</button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

@@ -7,6 +7,9 @@ import Register from "../pages/Register";
 import Login from "../pages/Login";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorPage from "../pages/Error/ErrorPage";
+import AboutUs from "../components/AboutUs/AboutUs";
+import Courses from "../components/Courses/Courses";
+import CourseDetails from "../components/Courses/CourseDetails";
 
 
 const router = createBrowserRouter(
@@ -18,7 +21,7 @@ const router = createBrowserRouter(
       children: [
         {
           index: true,
-          loader: () => axios(`${import.meta.env.VITE_API_URL}/packages`),
+          loader: () => axios(`${import.meta.env.VITE_API_URL}/courses`),
           element: <Home />,
         },
         {
@@ -29,6 +32,21 @@ const router = createBrowserRouter(
           path: '/login',
           element: <Login />,
         },
+        {
+          path:'/aboutUs',
+          element: <AboutUs></AboutUs>
+        },
+       {
+ 
+  path:'/courses',
+  loader: () => axios.get(`${import.meta.env.VITE_API_URL}/courses`), // fetch from backend
+  element:<Courses />
+
+},
+        {
+          path:'/details/:id',
+          element: <CourseDetails></CourseDetails>
+        }
         
         
         
