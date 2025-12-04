@@ -1,33 +1,34 @@
-// src/Hooks/useUserRole.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 const useUserRole = (email) => {
   const [role, setRole] = useState(null);
-  const [loadingRole, setLoadingRole] = useState(true);
+  const [roleLoading, setRoleLoading] = useState(true);
 
   useEffect(() => {
     if (!email) return;
 
     const fetchRole = async () => {
-      setLoadingRole(true);
+      setRoleLoading(true);
       try {
+        const token = localStorage.getItem("access-token");
         const { data } = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/users/email/${encodeURIComponent(email)}`
+          `${import.meta.env.VITE_API_URL}/api/users/email/${encodeURIComponent(email)}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-        setRole(data.role); // assume backend returns { role: "admin" / "customer" }
+        setRole(data.role || "student");
       } catch (err) {
-        console.error("Failed to fetch user role:", err);
-        setRole("customer"); // default to student/customer
+        console.error("Failed to fetch user role:", err.response?.data || err.message);
+        setRole("student");
       } finally {
-        setLoadingRole(false);
+        setRoleLoading(false);
       }
     };
 
     fetchRole();
   }, [email]);
 
-  return { role, loadingRole };
+  return { role, roleLoading };
 };
 
 export default useUserRole;

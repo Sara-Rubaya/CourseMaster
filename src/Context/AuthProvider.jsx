@@ -9,14 +9,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import axios from "axios";
 import { app } from "../firebase/firebase.init";
 
@@ -35,49 +28,26 @@ const AuthProvider = ({ children }) => {
   // ================================
   const createUser = async (email, password, displayName, photoFile) => {
     setLoading(true);
-
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     let photoURL = "";
-
-    // Upload image if provided
     if (photoFile) {
-      const storageRef = ref(
-        storage,
-        `profileImages/${userCredential.user.uid}_${photoFile.name}`
-      );
-
+      const storageRef = ref(storage, `profileImages/${userCredential.user.uid}_${photoFile.name}`);
       const uploadTask = uploadBytesResumable(storageRef, photoFile);
-
       await new Promise((resolve, reject) => {
-        uploadTask.on(
-          "state_changed",
-          null,
-          reject,
-          async () => {
-            photoURL = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve();
-          }
-        );
+        uploadTask.on("state_changed", null, reject, async () => {
+          photoURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve();
+        });
       });
     }
 
-    // Update Firebase profile
     await updateProfile(userCredential.user, {
       displayName: displayName || "Anonymous",
       photoURL: photoURL,
     });
 
-    setUser({
-      ...userCredential.user,
-      displayName,
-      photoURL,
-    });
-
+    setUser({ ...userCredential.user, displayName, photoURL });
     setLoading(false);
     return userCredential;
   };
@@ -102,10 +72,7 @@ const AuthProvider = ({ children }) => {
 
   // Update Profile
   const updateUserProfile = (name, photo) => {
-    return updateProfile(auth.currentUser, {
-      displayName: name,
-      photoURL: photo,
-    });
+    return updateProfile(auth.currentUser, { displayName: name, photoURL: photo });
   };
 
   // ================================
@@ -113,8 +80,6 @@ const AuthProvider = ({ children }) => {
   // ================================
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("CurrentUser:", currentUser?.email);
-
       setUser(currentUser);
 
       if (currentUser?.email) {
@@ -122,12 +87,8 @@ const AuthProvider = ({ children }) => {
           const encodedEmail = encodeURIComponent(currentUser.email);
 
           // Check user in DB
-          const res = await axios.get(
-            `${import.meta.env.VITE_API_URL}/api/users/email/${encodedEmail}`
-          );
-
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/email/${encodedEmail}`);
           if (!res.data) {
-            // Create new user
             await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, {
               email: currentUser.email,
               displayName: currentUser.displayName || "Anonymous",
@@ -152,22 +113,14 @@ const AuthProvider = ({ children }) => {
         // 🔐 REQUEST JWT TOKEN
         // ======================
         try {
-          const { data } = await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/jwt`,
-            { email: currentUser.email }
-          );
-
-          // Save token locally
+          const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/jwt`, {
+            email: currentUser.email,
+          });
           localStorage.setItem("access-token", data.token);
-          console.log("JWT saved!");
         } catch (jwtErr) {
-          console.error(
-            "JWT request failed:",
-            jwtErr.response?.data || jwtErr.message
-          );
+          console.error("JWT request failed:", jwtErr.response?.data || jwtErr.message);
         }
       } else {
-        // On logout
         localStorage.removeItem("access-token");
       }
 
@@ -177,7 +130,6 @@ const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // Context Value
   const authInfo = {
     user,
     loading,
@@ -188,9 +140,7 @@ const AuthProvider = ({ children }) => {
     updateUserProfile,
   };
 
-  return (
-    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
