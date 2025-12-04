@@ -13,8 +13,11 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_messagingSenderId,
   appId: import.meta.env.VITE_appId
 };
-console.log("API KEY:", import.meta.env.VITE_apiKey);
+console.log(firebaseConfig);
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+
+export { app };

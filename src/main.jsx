@@ -1,30 +1,34 @@
-// main.jsx or index.jsx (your entry file)
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import './app.css';
-import router from './Router/router.jsx';
-import { RouterProvider } from 'react-router';
-import AuthProvider from './Context/AuthProvider.jsx';
+import './index.css';
+
+import { RouterProvider } from 'react-router'; // ✅ fixed import
+
+import 'aos/dist/aos.css';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import Aos from 'aos';
 
+import AuthProvider from './Context/AuthProvider.jsx';
+import router from './Router/router.jsx';
 
-function AppWrapper() {
+const queryClient = new QueryClient();
+
+const App = () => {
   useEffect(() => {
-    Aos.init({
-      duration: 800,
-      once: true,
-    });
+    Aos.init({ duration: 800, once: true });
   }, []);
 
-  return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  );
-}
+  return <RouterProvider router={router} />;
+};
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AppWrapper />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>
 );

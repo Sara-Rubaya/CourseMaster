@@ -2,7 +2,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { Autoplay } from 'swiper/modules';
 import Banner from './Banner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 const Hero = () => {
     const navigate = useNavigate();

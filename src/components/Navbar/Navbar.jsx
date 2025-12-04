@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { AuthContext } from '../../Context/AuthContext';
+import { AuthContext } from '../../Context/AuthProvider';
+
 
 
 const Navbar = () => {
@@ -49,7 +50,7 @@ const Navbar = () => {
               
               <li><a href="/courses" className='hover:bg-violet-900'>Courses</a></li>
               <li><a href="/aboutUs" className='hover:bg-violet-900'>About Us</a></li>
-              <li><a href="/aboutUs" className='hover:bg-violet-900'>Dashboard</a></li>
+              <li><a href="/dashboard" className='hover:bg-violet-900'>Dashboard</a></li>
             </ul>
           </div>
           <a className="btn btn-ghost text-xl">CourseMaster</a>
@@ -62,7 +63,7 @@ const Navbar = () => {
           
             <li><a href="/courses">Courses</a></li>
             <li><a href="/aboutUs">About Us</a></li>
-            <li><a href="/aboutUs">Dashboard</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
           </ul>
         </div>
 
