@@ -10,11 +10,18 @@ import {
   updateProfile,
 } from "firebase/auth";
 
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+
 import axios from "axios";
 import { app } from "../firebase/firebase.init";
 
 export const AuthContext = createContext(null);
+
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const storage = getStorage(app);
@@ -23,25 +30,34 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Register new user (email, password, displayName, photoFile)
+  // ================================
+  // Create User (Email/PW + Profile)
+  // ================================
   const createUser = async (email, password, displayName, photoFile) => {
     setLoading(true);
 
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     let photoURL = "";
+
+    // Upload image if provided
     if (photoFile) {
-      const storageRef = ref(storage, `profileImages/${userCredential.user.uid}_${photoFile.name}`);
+      const storageRef = ref(
+        storage,
+        `profileImages/${userCredential.user.uid}_${photoFile.name}`
+      );
+
       const uploadTask = uploadBytesResumable(storageRef, photoFile);
 
       await new Promise((resolve, reject) => {
         uploadTask.on(
           "state_changed",
           null,
-          (error) => {
-            setLoading(false);
-            reject(error);
-          },
+          reject,
           async () => {
             photoURL = await getDownloadURL(uploadTask.snapshot.ref);
             resolve();
@@ -50,36 +66,41 @@ const AuthProvider = ({ children }) => {
       });
     }
 
+    // Update Firebase profile
     await updateProfile(userCredential.user, {
       displayName: displayName || "Anonymous",
-      photoURL: photoURL || "",
+      photoURL: photoURL,
     });
 
     setUser({
       ...userCredential.user,
-      displayName: displayName || "Anonymous",
-      photoURL: photoURL || "",
+      displayName,
+      photoURL,
     });
 
     setLoading(false);
     return userCredential;
   };
 
+  // Login
   const signIn = (email, password) => {
     setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
   };
 
+  // Google Login
   const signInWithGoogle = () => {
     setLoading(true);
     return signInWithPopup(auth, googleProvider);
   };
 
-  const logOut = async () => {
+  // Logout
+  const logOut = () => {
     setLoading(true);
     return signOut(auth);
   };
 
+  // Update Profile
   const updateUserProfile = (name, photo) => {
     return updateProfile(auth.currentUser, {
       displayName: name,
@@ -87,73 +108,67 @@ const AuthProvider = ({ children }) => {
     });
   };
 
-  // 🔐 Auth State Listener
+  // ================================
+  // AUTH STATE LISTENER
+  // ================================
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("CurrentUser -->", currentUser?.email);
+      console.log("CurrentUser:", currentUser?.email);
+
       setUser(currentUser);
 
       if (currentUser?.email) {
         try {
           const encodedEmail = encodeURIComponent(currentUser.email);
 
-          // Check if user exists
-          const { data: existingUser } = await axios.get(
+          // Check user in DB
+          const res = await axios.get(
             `${import.meta.env.VITE_API_URL}/api/users/email/${encodedEmail}`
           );
 
-          if (!existingUser) {
-            await axios.post(
-              `${import.meta.env.VITE_API_URL}/api/users`,
-              {
-                email: currentUser.email,
-                displayName: currentUser.displayName || "Anonymous",
-                photoURL: currentUser.photoURL || "",
-                role: "customer",
-                createdAt: new Date(),
-              },
-              { withCredentials: true }
-            );
+          if (!res.data) {
+            // Create new user
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, {
+              email: currentUser.email,
+              displayName: currentUser.displayName || "Anonymous",
+              photoURL: currentUser.photoURL || "",
+              role: "customer",
+              createdAt: new Date(),
+            });
           }
-        } catch (error) {
-          if (error.response?.status === 404) {
-            try {
-              await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/users`,
-                {
-                  email: currentUser.email,
-                  displayName: currentUser.displayName || "Anonymous",
-                  photoURL: currentUser.photoURL || "",
-                  role: "customer",
-                  createdAt: new Date(),
-                },
-                { withCredentials: true }
-              );
-            } catch (postError) {
-              console.error("Failed to create new user:", postError);
-            }
-          } else {
-            console.error("Failed to save/check user in MongoDB:", error);
+        } catch (err) {
+          if (err.response?.status === 404) {
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, {
+              email: currentUser.email,
+              displayName: currentUser.displayName || "Anonymous",
+              photoURL: currentUser.photoURL || "",
+              role: "customer",
+              createdAt: new Date(),
+            });
           }
         }
 
-        // ✅ Get JWT token (catch error to prevent loading hang)
+        // ======================
+        // 🔐 REQUEST JWT TOKEN
+        // ======================
         try {
-          await axios.post(
-            `${import.meta.env.VITE_API_URL}/jwt`,
-            { email: currentUser.email },
-            { withCredentials: true }
+          const { data } = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/jwt`,
+            { email: currentUser.email }
           );
-        } catch (jwtError) {
+
+          // Save token locally
+          localStorage.setItem("access-token", data.token);
+          console.log("JWT saved!");
+        } catch (jwtErr) {
           console.error(
-            "JWT fetch failed (ignored, dashboard will still load):",
-            jwtError.response?.data || jwtError.message
+            "JWT request failed:",
+            jwtErr.response?.data || jwtErr.message
           );
         }
       } else {
-        await axios.get(`${import.meta.env.VITE_API_URL}/logout`, {
-          withCredentials: true,
-        });
+        // On logout
+        localStorage.removeItem("access-token");
       }
 
       setLoading(false);
@@ -162,11 +177,10 @@ const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  // Context Value
   const authInfo = {
     user,
-    setUser,
     loading,
-    setLoading,
     createUser,
     signIn,
     signInWithGoogle,
@@ -174,7 +188,9 @@ const AuthProvider = ({ children }) => {
     updateUserProfile,
   };
 
-  return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;

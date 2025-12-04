@@ -1,10 +1,11 @@
 import React, { useContext } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
-import { AuthContext } from "../Context/AuthProvider";
-import useUserRole from "../Hooks/useUserRole";
+
 
 import AdminDashboard from "../components/Dashboard/AdminDashboard";
 import StudentDashboard from "../components/Dashboard/StudentDashboard";
+import { AuthContext } from "../Context/AuthProvider";
+import useUserRole from "../Hooks/useUserRole";
 
 const DashboardLayout = () => {
   const { user } = useContext(AuthContext);
@@ -25,20 +26,22 @@ const DashboardLayout = () => {
   const normalizedRole = role === "customer" ? "student" : role;
 
   const activeClass =
-    "flex items-center p-2 rounded-lg dark:text-white bg-gray-200 dark:bg-gray-700";
+    "flex items-center p-2 rounded-lg dark:text-white bg-gray-200 dark:bg-violet-700";
   const normalClass =
-    "flex items-center p-2 rounded-lg dark:text-white text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 group";
+    "flex items-center p-2 rounded-lg dark:text-white text-gray-50 hover:bg-violet-100 dark:hover:bg-violet-700 group";
 
-  // Role-based menus
+  // Role-based menus (RELATIVE paths to /dashboard)
   const menuItems = {
     admin: [
-      { path: "/dashboard/admin-home", label: "Dashboard Home" },
-      { path: "/dashboard/manage-users", label: "Manage Users" },
-      { path: "/dashboard/manage-courses", label: "Manage Courses" },
+      { path: "/dashboard", label: "Dashboard Home" },
+ 
+  { path: "/dashboard/manage-users", label: "Manage Users" },
+  { path: "/dashboard/manage-course", label: "Manage Courses" },
+  { path: "/dashboard/add-course", label: "Add Course" },
     ],
     student: [
-      { path: "/dashboard/my-courses", label: "My Courses" },
-      { path: "/dashboard/profile", label: "Profile" },
+      { path: "my-courses", label: "My Courses" },
+      { path: "profile", label: "Profile" },
     ],
   };
 
@@ -51,21 +54,16 @@ const DashboardLayout = () => {
   return (
     <div>
       {/* Navbar */}
-      <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-violet-900 dark:border-violet-700">
         <div className="px-3 py-3 lg:px-5 lg:pl-3 flex justify-between items-center">
           <NavLink to="/" className="flex items-center gap-2">
-            <img
-              src="https://i.ibb.co/xK0tyB1q/Whats-App-Image-2025-07-13-at-22-52-57.jpg"
-              className="h-8"
-              alt="Logo"
-            />
             <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
               CourseMaster
             </span>
           </NavLink>
 
           <div className="flex items-center">
-            <button className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+            <button className="flex text-sm bg-violet-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-green-600">
               <span className="sr-only">Open user menu</span>
               <img
                 className="w-8 h-8 rounded-full"
@@ -78,13 +76,13 @@ const DashboardLayout = () => {
       </nav>
 
       {/* Sidebar */}
-      <aside className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <aside className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 bg-gray-50 border-r border-gray-200 dark:bg-violet-900 dark:border-violet-700">
         <div className="h-full px-3 pb-4 overflow-y-auto">
           <ul className="space-y-2 font-medium">
             {menuItems[normalizedRole]?.map((item) => (
               <li key={item.path}>
                 <NavLink
-                  to={item.path}
+                  to={item.path} // ✅ Relative path
                   className={({ isActive }) =>
                     isActive ? activeClass : normalClass
                   }
@@ -98,7 +96,7 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <div className="pt-20 pl-64 min-h-screen bg-gray-100">
+      <div className="pt-20 pl-64 min-h-screen bg-gray-50">
         {location.pathname === "/dashboard" ? renderDashboardHome() : <Outlet />}
       </div>
     </div>

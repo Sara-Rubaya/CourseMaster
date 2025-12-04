@@ -6,7 +6,8 @@ import { AuthContext } from "../../Context/AuthContext";
 const CourseDetails = () => {
   const { id } = useParams(); // course id from URL
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext) || {};
+
   const [course, setCourse] = useState(null);
 
   useEffect(() => {

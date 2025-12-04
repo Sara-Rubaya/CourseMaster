@@ -16,8 +16,16 @@ import DashboardHome from "../components/Dashboard/DashboardHome";
 import AdminRoute from "./AdminRoute";
 import StudentRoute from "./StudentRoute";
 
+import Forbidden from "../components/Dashboard/Forbidden";
+import AddCourse from "../components/Courses/AddCourse";
+import EditCourse from "../components/Courses/EditCourse";
+import CourseDetails from "../components/Courses/CourseDetails";
+import ManageUsers from "../components/Admin/ManageUser";
+
+
 const router = createBrowserRouter(
   [
+    // ----------------- Public Routes -----------------
     {
       path: "/",
       element: <RootLayout />,
@@ -31,40 +39,47 @@ const router = createBrowserRouter(
           },
           element: <Home />,
         },
-        {
-          path: "/register",
-          element: <Register />,
-        },
-        {
-          path: "/login",
-          element: <Login />,
-        },
-        {
-          path: "/aboutUs",
-          element: <AboutUs />,
-        },
-        {
-          path: "/courses",
-          loader: async () => {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/courses`);
-            return res.data;
+        { path: "register", 
+          element: <Register />
+         },
+        { 
+          path: "login",
+           element: <Login /> 
           },
-          element: <Courses />,
+          
+        { 
+          path: "aboutUs", 
+          element: <AboutUs /> 
         },
+       {
+    path: "courses",
+    loader: async () => {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/courses`);
+      return res.data;
+    },
+    element: <Courses />,
+  },
+ {
+  path: "details/:id", // <-- :id is required
+  element: <CourseDetails />,
+},
+        { path: "forbidden", element: <Forbidden /> }, 
+       
       ],
     },
+
+    // ----------------- Dashboard Routes -----------------
     {
-      path: "/dashboard",
+      path: "dashboard",
       element: (
         <PrivateRoute>
           <DashboardLayout />
         </PrivateRoute>
       ),
       children: [
-        {
-          index: true,
-          element: <DashboardHome />,
-        },
+        { index: true, element: <DashboardHome /> },
+
+        // Admin Routes
         {
           path: "admin-home",
           element: (
@@ -73,6 +88,21 @@ const router = createBrowserRouter(
             </AdminRoute>
           ),
         },
+        
+        {
+          path:"manage-course",
+          element:<EditCourse></EditCourse>
+        },
+        {
+          path:"add-course",
+          element:<AddCourse></AddCourse>
+        },
+        {
+          path:"manage-users",
+          element:<ManageUsers></ManageUsers>
+        },
+
+        // Student Routes
         {
           path: "student-home",
           element: (

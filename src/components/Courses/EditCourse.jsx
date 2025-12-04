@@ -1,173 +1,208 @@
-// src/components/Admin/EditCourse.jsx
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+// src/Pages/Dashboard/Admin/ManageCourses.jsx
+import { useEffect, useState } from "react";
+import { FaTrash, FaEdit } from "react-icons/fa";
+import Swal from "sweetalert2";
+import { useForm } from "react-hook-form";
 import axios from "axios";
 
-const EditCourse = () => {
-  const { id } = useParams(); // course id from URL
-  const navigate = useNavigate();
-  const [course, setCourse] = useState({
-    title: "",
-    instructor: "",
-    price: "",
-    category: "",
-    tags: "",
-    description: "",
-    syllabus: "",
-  });
+const ManageCourses = () => {
+  const [courses, setCourses] = useState([]);
+  const [editingCourse, setEditingCourse] = useState(null);
+  const { register, handleSubmit, reset } = useForm();
 
-  // Fetch course data
+  // Fetch courses from backend
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const { data } = await axios.get(`http://localhost:5000/api/courses/${id}`);
-        setCourse({
-          title: data.title,
-          instructor: data.instructor,
-          price: data.price,
-          category: data.category,
-          tags: data.tags.join(", "),
-          description: data.description,
-          syllabus: data.syllabus.join("\n"),
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    };
+    fetchCourses();
+  }, []);
 
-    fetchCourse();
-  }, [id]);
-
-  const handleChange = (e) => {
-    setCourse({ ...course, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const fetchCourses = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/courses/${id}`, {
-        ...course,
-        price: Number(course.price),
-        tags: course.tags.split(",").map((tag) => tag.trim()),
-        syllabus: course.syllabus.split("\n").map((item) => item.trim()),
-      });
-      alert("Course updated successfully!");
-      navigate("/admin/courses");
+      const res = await axios.get("http://localhost:5000/api/courses");
+      setCourses(res.data.courses); // match backend response
     } catch (err) {
       console.error(err);
-      alert("Error updating course. Check console.");
+    }
+  };
+
+  // Add or Update course
+  const onSubmit = async (data) => {
+    try {
+      if (editingCourse) {
+        // update
+        const res = await axios.put(`http://localhost:5000/api/courses/${editingCourse._id}`, {
+          ...data,
+          price: Number(data.price),
+          tags: data.tags.split(",").map((t) => t.trim()),
+          syllabus: data.syllabus.split("\n").map((s) => s.trim()),
+        });
+        if (res.data._id) {
+          Swal.fire("Updated!", "Course updated successfully.", "success");
+          setEditingCourse(null);
+          reset();
+          fetchCourses();
+        }
+      } else {
+        // add new
+        const res = await axios.post("http://localhost:5000/api/courses", {
+          ...data,
+          price: Number(data.price),
+          tags: data.tags.split(",").map((t) => t.trim()),
+          syllabus: data.syllabus.split("\n").map((s) => s.trim()),
+        });
+        if (res.data._id) {
+          Swal.fire("Added!", "New course added successfully.", "success");
+          reset();
+          fetchCourses();
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error!", "Something went wrong.", "error");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Delete this course?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        const res = await axios.delete(`http://localhost:5000/api/courses/${id}`);
+        if (res.data.message) {
+          Swal.fire("Deleted!", "Course removed successfully.", "success");
+          fetchCourses();
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error!", "Could not delete course.", "error");
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center items-start p-6">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-3xl">
-        <h1 className="text-3xl font-bold text-violet-800 mb-6">Edit Course</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">Course Title</label>
-            <input
-              type="text"
-              name="title"
-              value={course.title}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            />
-          </div>
+    <div className="p-4">
+      <h2 className="text-5xl font-bold mb-4 text-violet-800">Manage Courses</h2>
 
-          {/* Instructor */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">Instructor</label>
-            <input
-              type="text"
-              name="instructor"
-              value={course.instructor}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            />
-          </div>
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded-xl shadow">
+        <input
+          {...register("title")}
+          placeholder="Course Title"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          required
+          defaultValue={editingCourse?.title}
+        />
 
-          {/* Price */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">Price ($)</label>
-            <input
-              type="number"
-              name="price"
-              value={course.price}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            />
-          </div>
+        <input
+          {...register("instructor")}
+          placeholder="Instructor Name"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          required
+          defaultValue={editingCourse?.instructor}
+        />
 
-          {/* Category */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">Category</label>
-            <input
-              type="text"
-              name="category"
-              value={course.category}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            />
-          </div>
+        <input
+          {...register("price")}
+          type="number"
+          placeholder="Price"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          required
+          defaultValue={editingCourse?.price}
+        />
 
-          {/* Tags */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">Tags (comma separated)</label>
-            <input
-              type="text"
-              name="tags"
-              value={course.tags}
-              onChange={handleChange}
-              placeholder="React, Frontend"
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            />
-          </div>
+        <input
+          {...register("category")}
+          placeholder="Category"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          required
+          defaultValue={editingCourse?.category}
+        />
 
-          {/* Description */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">Description</label>
-            <textarea
-              name="description"
-              value={course.description}
-              onChange={handleChange}
-              rows="4"
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            ></textarea>
-          </div>
+        <input
+          {...register("tags")}
+          placeholder="Tags (comma separated)"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          required
+          defaultValue={editingCourse?.tags?.join?.(", ")}
+        />
 
-          {/* Syllabus */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Syllabus (one item per line)
-            </label>
-            <textarea
-              name="syllabus"
-              value={course.syllabus}
-              onChange={handleChange}
-              rows="4"
-              required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-600"
-            ></textarea>
-          </div>
+        <textarea
+          {...register("syllabus")}
+          placeholder="Syllabus (one per line)"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2 text-black"
+          required
+          rows={4}
+          defaultValue={editingCourse?.syllabus?.join?.("\n")}
+        />
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-violet-800 text-white px-6 py-3 rounded-2xl hover:bg-violet-700 transition-colors duration-300"
-          >
-            Update Course
-          </button>
-        </form>
+        <textarea
+          {...register("description")}
+          placeholder="Description"
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 md:col-span-2 text-black"
+          required
+          rows={4}
+          defaultValue={editingCourse?.description}
+        />
+
+        <button
+          type="submit"
+          className="items-center focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 md:col-span-2"
+        >
+          {editingCourse ? "Update Course" : "Add Course"}
+        </button>
+      </form>
+
+      {/* Table */}
+      <div className="overflow-x-auto mt-8">
+        <table className="table w-full bg-white shadow-md rounded-xl">
+          <thead>
+            <tr className="bg-purple-100">
+              <th className="py-3 px-4 text-left text-black">Title</th>
+              <th className="py-3 px-4 text-left text-black">Instructor</th>
+              <th className="py-3 px-4 text-left text-black">Category</th>
+              <th className="py-3 px-4 text-left text-black">Price</th>
+              <th className="py-3 px-4 text-left text-black">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {courses.map((course) => (
+              <tr
+                key={course._id}
+                className="mb-4 bg-white shadow rounded-lg"
+                style={{ display: "table-row", marginBottom: "1rem" }}
+              >
+                <td className="py-3 px-4 text-black">{course.title}</td>
+                <td className="py-3 px-4 text-black">{course.instructor}</td>
+                <td className="py-3 px-4 text-black">{course.category}</td>
+                <td className="py-3 px-4 text-black">${course.price}</td>
+                <td className="flex gap-2 py-3 px-4 text-black">
+                  <button
+                    className="btn btn-sm bg-green-500 hover:bg-green-600 text-white rounded px-4 py-2 text-base"
+                    onClick={() => setEditingCourse(course)}
+                    title="Edit Course"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="btn btn-sm bg-red-500 hover:bg-red-600 text-white rounded px-4 py-2 text-base"
+                    onClick={() => handleDelete(course._id)}
+                    title="Delete Course"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-export default EditCourse;
+export default ManageCourses;

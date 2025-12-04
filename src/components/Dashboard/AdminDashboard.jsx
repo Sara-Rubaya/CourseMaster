@@ -7,21 +7,23 @@ const AdminDashboard = () => {
   const cards = [
     {
       title: "Manage Courses",
-      description: "Add, edit, or delete courses. Keep your course library up to date.",
+      description:
+        "Add, edit, or delete courses. Keep your course library up to date.",
       icon: <FiBook className="text-4xl text-violet-800 mb-4" />,
-      link: "/admin/courses",
+      link: "manage-courses", // ✅ relative to /dashboard
     },
     {
       title: "Manage Users",
-      description: "View all students and instructors. Assign roles or remove users.",
+      description:
+        "View all students and instructors. Assign roles or remove users.",
       icon: <FiUsers className="text-4xl text-violet-800 mb-4" />,
-      link: "/admin/users",
+      link: "/dashboard/manage-users", // ✅ relative to /dashboard
     },
     {
       title: "Reports & Analytics",
       description: "Track enrollment stats, revenue, and other important metrics.",
       icon: <FiBarChart2 className="text-4xl text-violet-800 mb-4" />,
-      link: "/admin/reports",
+      link: "reports", // ✅ relative to /dashboard
     },
   ];
 
@@ -34,7 +36,9 @@ const AdminDashboard = () => {
           <Link key={idx} to={card.link}>
             <div className="bg-white shadow-lg rounded-2xl p-6 hover:shadow-2xl transition cursor-pointer flex flex-col items-center text-center">
               {card.icon}
-              <h2 className="text-2xl font-semibold mb-2 text-violet-800">{card.title}</h2>
+              <h2 className="text-2xl font-semibold mb-2 text-violet-800">
+                {card.title}
+              </h2>
               <p className="text-gray-700">{card.description}</p>
             </div>
           </Link>
